@@ -5,22 +5,26 @@ import * as ffmpeg from 'fluent-ffmpeg';
 @Injectable()
 export class AppService {
   public async save(data: string[]): Promise<string> {
-    await this.convertImagesToVideo(data, 'output');
+    const timestamp = new Date().getTime();
+    await this.convertImagesToVideo(data, `output_${timestamp}`, timestamp);
     return 'Hello World!';
   }
 
   private async convertImagesToVideo(
     base64Images: string[],
     outputVideoName: string,
+    timestamp: number,
   ) {
     // decode Base64 strings to image files
-    const imagePaths = await this.decodeBase64Images(base64Images);
+    await this.decodeBase64Images(base64Images, timestamp);
 
     return new Promise((resolve, reject) => {
       ffmpeg()
-        .on('end', () => resolve('Video created'))
+        .on('end', () => {
+          resolve('Video created');
+        })
         .on('error', (err) => reject(new Error(`Error ${err}`)))
-        .input('/tmp/image%d.jpg') // Replace with your images path
+        .input(`/tmp/image_${timestamp}_%d.jpg`) // Replace with your images path
         .inputFPS(25)
         .outputOptions(
           '-vf',
@@ -37,11 +41,14 @@ export class AppService {
     });
   }
 
-  private async decodeBase64Images(base64Images: string[]): Promise<string[]> {
+  private async decodeBase64Images(
+    base64Images: string[],
+    timestamp: number,
+  ): Promise<string[]> {
     const filenames = [];
 
     for (let i = 0; i < base64Images.length; i++) {
-      const filename = `image${i}.jpg`;
+      const filename = `image_${timestamp}_${i}.jpg`;
       console.log(filename);
       await fs.promises.writeFile(
         `/tmp/${filename}`,
