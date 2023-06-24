@@ -5,8 +5,10 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Post()
-  public async save(@Body() body: { data: string[] }): Promise<string> {
-    return await this.appService.save(body.data);
+  @Post('/upload')
+  public async save(
+    @Body() body: { dir: string; data: string[] },
+  ): Promise<string> {
+    return await this.appService.upload(body.dir, body.data);
   }
 }

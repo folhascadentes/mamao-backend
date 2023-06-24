@@ -9,7 +9,7 @@ export class AppService {
   private bucketName = process.env.AWS_BUCKET_NAME;
   private s3 = new S3Client({ region: 'sa-east-1' });
 
-  public async save(data: string[]): Promise<string> {
+  public async upload(dir: string, data: string[]): Promise<string> {
     const timestamp = new Date().getTime();
     const outputVideoName = `output_${timestamp}`;
     let fileNames;
@@ -21,7 +21,7 @@ export class AppService {
         timestamp,
       );
       const videoFilePath = `${outputVideoName}.mp4`;
-      const uploadedFileData = await this.uploadToS3(videoFilePath);
+      const uploadedFileData = await this.uploadToS3(dir, videoFilePath);
       await this.deleteTempFiles(fileNames.concat(videoFilePath));
       return uploadedFileData.ETag;
     } catch (error) {
@@ -32,14 +32,14 @@ export class AppService {
     }
   }
 
-  private async uploadToS3(filePath: string) {
+  private async uploadToS3(dir: string, filePath: string) {
     console.log('UPLOADING TO S3', filePath);
 
     const fileStream = fs.createReadStream(filePath);
 
     const command = new PutObjectCommand({
       Bucket: this.bucketName,
-      Key: `videos/${path.basename(filePath)}`,
+      Key: `${dir}/${path.basename(filePath)}`,
       Body: fileStream,
     });
 
@@ -62,14 +62,7 @@ export class AppService {
         .on('error', (err) => reject(new Error(`Error ${err}`)))
         .input(`/tmp/image_${timestamp}_%d.jpg`) // Replace with your images path
         .inputFPS(25)
-        .outputOptions(
-          '-c:v',
-          'libx264',
-          '-crf',
-          '28',
-          '-r',
-          '30',
-        )
+        .outputOptions('-c:v', 'libx264', '-crf', '28', '-r', '30')
         .output(`${outputVideoName}.mp4`) // Replace with your output path
         .run();
     });
