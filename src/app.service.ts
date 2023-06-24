@@ -64,7 +64,7 @@ export class AppService {
         .inputFPS(25)
         .outputOptions(
           '-c:v',
-          'libx265',
+          'libx264',
           '-crf',
           '28',
           '-r',
