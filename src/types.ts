@@ -20,14 +20,8 @@ export class UploadSignPayload {
   token: string;
 
   @IsNotEmpty()
-  @IsNumber()
-  timestamp: number;
-
-  @IsNotEmpty()
-  @IsString()
-  path: string;
-
-  @IsObject()
+  @IsObject({ each: true })
+  @IsArray()
   landmarks: any;
 
   @IsNotEmpty()

@@ -20,12 +20,14 @@ export class SignDatabaseService {
     let fileNames: string[] = [];
 
     try {
-      fileNames = await this.convertImagesToVideo(
-        payload.frames,
-        outputVideoName,
-        timestamp,
-      );
       const videoFilePath = `${outputVideoName}.mp4`;
+      fileNames = (
+        await this.convertImagesToVideo(
+          payload.frames,
+          outputVideoName,
+          timestamp,
+        )
+      ).concat(videoFilePath);
       const uploadedFileData = await this.uploadToS3(
         payload.userId,
         videoFilePath,
@@ -38,7 +40,7 @@ export class SignDatabaseService {
         path: videoFilePath,
         landmarks: payload.landmarks,
       });
-      await this.deleteTempFiles(fileNames.concat(videoFilePath));
+      await this.deleteTempFiles(fileNames);
       return uploadedFileData.ETag;
     } catch (error) {
       if (fileNames) {
