@@ -5,7 +5,7 @@ import * as ffmpeg from 'fluent-ffmpeg';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
 @Injectable()
-export class AppService {
+export class DatabaseService {
   private bucketName = process.env.AWS_BUCKET_NAME;
   private s3 = new S3Client({ region: 'sa-east-1' });
 
