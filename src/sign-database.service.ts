@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as ffmpeg from 'fluent-ffmpeg';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import { UploadSignPayload } from './types';
 
 const SIGN_DATABASE_TABLE = 'sign-database';
 
@@ -13,19 +14,30 @@ export class SignDatabaseService {
   private s3 = new S3Client({ region: 'sa-east-1' });
   private dynamo = new DynamoDBClient({ region: 'sa-east-1' });
 
-  public async upload(dir: string, data: string[]): Promise<string> {
+  public async upload(payload: UploadSignPayload): Promise<string> {
     const timestamp = new Date().getTime();
-    const outputVideoName = `output_${timestamp}`;
+    const outputVideoName = `${timestamp}`;
     let fileNames: string[] = [];
 
     try {
       fileNames = await this.convertImagesToVideo(
-        data,
+        payload.frames,
         outputVideoName,
         timestamp,
       );
       const videoFilePath = `${outputVideoName}.mp4`;
-      const uploadedFileData = await this.uploadToS3(dir, videoFilePath);
+      const uploadedFileData = await this.uploadToS3(
+        payload.userId,
+        videoFilePath,
+      );
+      await this.uploadToDynamoDB({
+        userId: payload.userId,
+        language: payload.language,
+        token: payload.token,
+        timestamp,
+        path: videoFilePath,
+        landmarks: payload.landmarks,
+      });
       await this.deleteTempFiles(fileNames.concat(videoFilePath));
       return uploadedFileData.ETag;
     } catch (error) {
@@ -36,14 +48,14 @@ export class SignDatabaseService {
     }
   }
 
-  private async uploadToS3(dir: string, filePath: string) {
+  private async uploadToS3(userId: string, filePath: string) {
     console.log('UPLOADING TO S3', filePath);
 
     const fileStream = fs.createReadStream(filePath);
 
     const command = new PutObjectCommand({
       Bucket: this.bucketName,
-      Key: `${dir}/${path.basename(filePath)}`,
+      Key: `${userId}/${path.basename(filePath)}`,
       Body: fileStream,
     });
 
@@ -89,7 +101,7 @@ export class SignDatabaseService {
           resolve(filenames);
         })
         .on('error', (err) => reject(new Error(`Error ${err}`)))
-        .input(`/tmp/image_${timestamp}_%d.jpg`) // Replace with your images path
+        .input(`/tmp/frame_${timestamp}_%d.jpg`) // Replace with your images path
         .inputFPS(25)
         .outputOptions('-c:v', 'libx264', '-crf', '28', '-r', '30')
         .output(`${outputVideoName}.mp4`) // Replace with your output path
@@ -104,7 +116,7 @@ export class SignDatabaseService {
     const filenames = [];
 
     for (let i = 0; i < base64Images.length; i++) {
-      const filename = `image_${timestamp}_${i}.jpg`;
+      const filename = `frame_${timestamp}_${i}.jpg`;
       console.log(filename);
       await fs.promises.writeFile(
         `/tmp/${filename}`,
