@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { DatabaseService } from './database.service';
+import { SignDatabaseService } from './sign-database.service';
 
 @Module({
   imports: [],
   controllers: [AppController],
-  providers: [DatabaseService],
+  providers: [SignDatabaseService],
 })
 export class AppModule {}

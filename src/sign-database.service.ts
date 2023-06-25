@@ -3,16 +3,20 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as ffmpeg from 'fluent-ffmpeg';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
+
+const SIGN_DATABASE_TABLE = 'sign-database';
 
 @Injectable()
-export class DatabaseService {
+export class SignDatabaseService {
   private bucketName = process.env.AWS_BUCKET_NAME;
   private s3 = new S3Client({ region: 'sa-east-1' });
+  private dynamo = new DynamoDBClient({ region: 'sa-east-1' });
 
   public async upload(dir: string, data: string[]): Promise<string> {
     const timestamp = new Date().getTime();
     const outputVideoName = `output_${timestamp}`;
-    let fileNames;
+    let fileNames: string[] = [];
 
     try {
       fileNames = await this.convertImagesToVideo(
@@ -44,6 +48,31 @@ export class DatabaseService {
     });
 
     return await this.s3.send(command);
+  }
+
+  private async uploadToDynamoDB(record: {
+    userId: string;
+    language: string;
+    token: string;
+    timestamp: number;
+    path: string;
+    landmarks: any;
+  }) {
+    console.log('UPLOADING TO DYNAMODB');
+
+    const command = new PutItemCommand({
+      TableName: SIGN_DATABASE_TABLE,
+      Item: {
+        userId: { S: record.userId },
+        language: { S: record.language },
+        token: { S: record.token },
+        timestamp: { N: record.timestamp.toString() },
+        path: { S: record.path },
+        landmarks: { S: JSON.stringify(record.landmarks) },
+      },
+    });
+
+    return await this.dynamo.send(command);
   }
 
   private async convertImagesToVideo(

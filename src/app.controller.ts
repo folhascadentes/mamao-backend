@@ -1,9 +1,9 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { DatabaseService } from './database.service';
+import { SignDatabaseService } from './sign-database.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(private readonly databaseService: SignDatabaseService) {}
 
   @Post('/upload')
   public async save(
