@@ -8,7 +8,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 
-const envVariables = ['AWS_BUCKET_NAME', 'AWS_REGION'];
+const envVariables = [
+  'AWS_BUCKET_NAME',
+  'AWS_REGION',
+  'CONGNITO_USER_POOL_ID',
+  'COGNITO_CLIENT_ID',
+  'COGNITO_SECRET_KEY',
+];
 
 async function checkEnvVariables() {
   for (let envVariable of envVariables) {

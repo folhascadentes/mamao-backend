@@ -14,7 +14,9 @@ export class SignDatabaseService {
   private s3 = new S3Client({ region: process.env.AWS_REGION });
   private dynamo = new DynamoDBClient({ region: process.env.AWS_REGION });
 
-  public async upload(payload: UploadSignPayload): Promise<string> {
+  public async upload(
+    payload: UploadSignPayload & { userId: string },
+  ): Promise<string> {
     const timestamp = new Date().getTime();
     const outputVideoName = `${timestamp}`;
     let fileNames: string[] = [];

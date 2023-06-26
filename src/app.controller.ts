@@ -7,6 +7,8 @@ import {
   UploadSignPayload,
 } from './types';
 import { AuthService } from './auth.service';
+import { Auth } from './decorators/auth.decorator';
+import { UserId } from './decorators/user-id.decorator';
 
 @Controller()
 export class AppController {
@@ -40,10 +42,12 @@ export class AppController {
   }
 
   @Post('/upload')
+  @Auth()
   public async save(
     @Body()
     body: UploadSignPayload,
+    @UserId() userId: string,
   ): Promise<string> {
-    return await this.signDatabaseService.upload(body);
+    return await this.signDatabaseService.upload({ ...body, userId });
   }
 }
