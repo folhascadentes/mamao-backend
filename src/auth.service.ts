@@ -2,6 +2,7 @@
 import { Injectable } from '@nestjs/common';
 import {
   CognitoIdentityProviderClient,
+  ConfirmSignUpCommand,
   InitiateAuthCommand,
   SignUpCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
@@ -12,7 +13,7 @@ import { SignUpPayload } from './types';
 export class AuthService {
   private cognito = new CognitoIdentityProviderClient({ region: 'sa-east-1' });
 
-  async signUp(payload: SignUpPayload) {
+  public async signUp(payload: SignUpPayload) {
     const command = new SignUpCommand({
       ClientId: process.env.COGNITO_CLIENT_ID,
       Username: payload.email,
@@ -50,7 +51,22 @@ export class AuthService {
     return await this.cognito.send(command);
   }
 
-  async signIn(email: string, password: string): Promise<any> {
+  public async confirmSignUp(email: string, code: string): Promise<any> {
+    const command = new ConfirmSignUpCommand({
+      ClientId: process.env.COGNITO_CLIENT_ID,
+      Username: email,
+      ConfirmationCode: code,
+      SecretHash: this.calculateHMAC(
+        process.env.COGNITO_SECRET_KEY,
+        process.env.COGNITO_CLIENT_ID,
+        email,
+      ),
+    });
+
+    return await this.cognito.send(command);
+  }
+
+  public async signIn(email: string, password: string): Promise<any> {
     const command = new InitiateAuthCommand({
       AuthFlow: 'USER_PASSWORD_AUTH',
       ClientId: process.env.COGNITO_CLIENT_ID,

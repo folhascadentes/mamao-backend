@@ -73,6 +73,16 @@ export class SignUpPayload {
   others?: string;
 }
 
+export class ConfirmSignUpPayload {
+  @IsNotEmpty()
+  @IsString()
+  email: string;
+
+  @IsNotEmpty()
+  @IsString()
+  code: string;
+}
+
 export class SignInPayload {
   @IsNotEmpty()
   @IsString()

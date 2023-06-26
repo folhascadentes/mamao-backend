@@ -1,6 +1,11 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { SignDatabaseService } from './sign-database.service';
-import { SignInPayload, SignUpPayload, UploadSignPayload } from './types';
+import {
+  ConfirmSignUpPayload,
+  SignInPayload,
+  SignUpPayload,
+  UploadSignPayload,
+} from './types';
 import { AuthService } from './auth.service';
 
 @Controller()
@@ -16,6 +21,14 @@ export class AppController {
     body: SignUpPayload,
   ): Promise<any> {
     return await this.authService.signUp(body);
+  }
+
+  @Post('/confirm-sign-up')
+  public async confirmSignUp(
+    @Body()
+    body: ConfirmSignUpPayload,
+  ): Promise<any> {
+    return await this.authService.confirmSignUp(body.email, body.code);
   }
 
   @Post('/sign-in')
