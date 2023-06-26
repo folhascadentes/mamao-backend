@@ -50,7 +50,7 @@ export class SignUpPayload {
 
   @IsOptional()
   @IsString()
-  etinicity?: string;
+  ethnicity?: string;
 
   @IsOptional()
   @IsString()
