@@ -49,6 +49,40 @@ export class SignUpPayload {
   others?: string;
 }
 
+export class UpdateProfilePayload {
+  @IsOptional()
+  @IsNumber()
+  age?: number;
+
+  @IsOptional()
+  @IsString()
+  gender?: string;
+
+  @IsOptional()
+  @IsString()
+  ethnicity?: string;
+
+  @IsOptional()
+  @IsString()
+  location?: string;
+
+  @IsOptional()
+  @IsString()
+  deficiency?: string;
+
+  @IsOptional()
+  @IsNumber()
+  weight?: number;
+
+  @IsOptional()
+  @IsNumber()
+  height?: number;
+
+  @IsOptional()
+  @IsString()
+  others?: string;
+}
+
 export class ConfirmSignUpPayload {
   @IsNotEmpty()
   @IsString()

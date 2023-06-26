@@ -6,3 +6,10 @@ export const UserId = createParamDecorator(
     return request.user;
   },
 );
+
+export const Token = createParamDecorator(
+  (data: unknown, ctx: ExecutionContext) => {
+    const request = ctx.switchToHttp().getRequest();
+    return request.headers.authorization;
+  },
+);

@@ -12,9 +12,11 @@ import {
   InitiateAuthCommandOutput,
   SignUpCommand,
   SignUpCommandOutput,
+  UpdateUserAttributesCommand,
+  UpdateUserAttributesCommandOutput,
 } from '@aws-sdk/client-cognito-identity-provider';
 import * as crypto from 'crypto';
-import { SignUpPayload } from './types';
+import { SignUpPayload, UpdateProfilePayload } from './types';
 
 @Injectable()
 export class AuthService {
@@ -110,6 +112,40 @@ export class AuthService {
       ConfirmationCode: code,
       Password: newPassword,
       SecretHash: this.calculateHMAC(email),
+    });
+
+    return await this.cognito.send(command);
+  }
+
+  public async updateProfile(
+    payload: UpdateProfilePayload,
+    accessToken: string,
+  ): Promise<UpdateUserAttributesCommandOutput> {
+    const command = new UpdateUserAttributesCommand({
+      AccessToken: accessToken,
+      UserAttributes: Object.keys(payload)
+        .map((key) => {
+          if (key === 'accessToken') {
+            return null;
+          }
+
+          const name = `custom:${key}`;
+          let value = payload[key];
+
+          if (typeof value === 'number') {
+            value = value.toString();
+          }
+
+          if (value) {
+            return {
+              Name: name,
+              Value: value,
+            };
+          }
+
+          return null;
+        })
+        .filter(Boolean),
     });
 
     return await this.cognito.send(command);

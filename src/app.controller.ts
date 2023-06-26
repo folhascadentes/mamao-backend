@@ -4,11 +4,12 @@ import {
   ConfirmSignUpPayload,
   SignInPayload,
   SignUpPayload,
+  UpdateProfilePayload,
   UploadSignPayload,
 } from './types';
 import { AuthService } from './auth.service';
 import { Auth } from './decorators/auth.decorator';
-import { UserId } from './decorators/user-id.decorator';
+import { Token, UserId } from './decorators/user-id.decorator';
 
 @Controller()
 export class AppController {
@@ -49,6 +50,32 @@ export class AppController {
     },
   ) {
     return await this.authService.forgetPassword(body.email);
+  }
+
+  @Post('/confirm-forget-password')
+  public async confirmForgetPassword(
+    @Body()
+    body: {
+      email: string;
+      code: string;
+      newPassword: string;
+    },
+  ) {
+    return await this.authService.confirmForgetPassword(
+      body.email,
+      body.code,
+      body.newPassword,
+    );
+  }
+
+  @Post('/update-profile')
+  @Auth()
+  public async updateProfile(
+    @Body()
+    body: UpdateProfilePayload,
+    @Token() token: string,
+  ) {
+    return await this.authService.updateProfile(body, token);
   }
 
   @Post('/upload')
