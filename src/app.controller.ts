@@ -1,10 +1,22 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { SignDatabaseService } from './sign-database.service';
-import { UploadSignPayload } from './types';
+import { SignUpPayload, UploadSignPayload } from './types';
+import { AuthService } from './auth.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly signDatabaseService: SignDatabaseService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly signDatabaseService: SignDatabaseService,
+  ) {}
+
+  @Post('/sign-up')
+  public async signUp(
+    @Body()
+    body: SignUpPayload,
+  ): Promise<any> {
+    return await this.authService.signUp(body);
+  }
 
   @Post('/upload')
   public async save(

@@ -4,6 +4,7 @@ import {
   IsArray,
   IsNotEmpty,
   IsObject,
+  IsOptional,
 } from 'class-validator';
 
 export class UploadSignPayload {
@@ -28,4 +29,46 @@ export class UploadSignPayload {
   @IsArray()
   @IsString({ each: true })
   frames: string[]; // jpeg;base64
+}
+
+export class SignUpPayload {
+  @IsNotEmpty()
+  @IsString()
+  email: string;
+
+  @IsNotEmpty()
+  @IsString()
+  password: string;
+
+  @IsOptional()
+  @IsNumber()
+  age?: number;
+
+  @IsOptional()
+  @IsString()
+  gender?: string;
+
+  @IsOptional()
+  @IsString()
+  etinicity?: string;
+
+  @IsOptional()
+  @IsString()
+  location?: string;
+
+  @IsOptional()
+  @IsString()
+  deficiency?: string;
+
+  @IsOptional()
+  @IsNumber()
+  weight?: number;
+
+  @IsOptional()
+  @IsNumber()
+  height?: number;
+
+  @IsOptional()
+  @IsString()
+  others?: string;
 }
