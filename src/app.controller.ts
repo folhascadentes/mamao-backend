@@ -21,7 +21,7 @@ export class AppController {
   public async signUp(
     @Body()
     body: SignUpPayload,
-  ): Promise<any> {
+  ) {
     return await this.authService.signUp(body);
   }
 
@@ -29,7 +29,7 @@ export class AppController {
   public async confirmSignUp(
     @Body()
     body: ConfirmSignUpPayload,
-  ): Promise<any> {
+  ) {
     return await this.authService.confirmSignUp(body.email, body.code);
   }
 
@@ -37,8 +37,18 @@ export class AppController {
   public async signIn(
     @Body()
     body: SignInPayload,
-  ): Promise<any> {
+  ) {
     return await this.authService.signIn(body.email, body.password);
+  }
+
+  @Post('/forget-password')
+  public async forgetPassword(
+    @Body()
+    body: {
+      email: string;
+    },
+  ) {
+    return await this.authService.forgetPassword(body.email);
   }
 
   @Post('/upload')
