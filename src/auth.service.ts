@@ -6,6 +6,8 @@ import {
   ConfirmForgotPasswordCommandOutput,
   ConfirmSignUpCommand,
   ConfirmSignUpCommandOutput,
+  DeleteUserCommand,
+  DeleteUserCommandOutput,
   ForgotPasswordCommand,
   ForgotPasswordCommandOutput,
   InitiateAuthCommand,
@@ -146,6 +148,16 @@ export class AuthService {
           return null;
         })
         .filter(Boolean),
+    });
+
+    return await this.cognito.send(command);
+  }
+
+  public async deleteAccount(
+    accessToken: string,
+  ): Promise<DeleteUserCommandOutput> {
+    const command = new DeleteUserCommand({
+      AccessToken: accessToken,
     });
 
     return await this.cognito.send(command);

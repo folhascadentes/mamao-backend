@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Post } from '@nestjs/common';
 import { SignDatabaseService } from './sign-database.service';
 import {
   ConfirmSignUpPayload,
@@ -76,6 +76,12 @@ export class AppController {
     @Token() token: string,
   ) {
     return await this.authService.updateProfile(body, token);
+  }
+
+  @Delete('/delete-account')
+  @Auth()
+  public async deleteAccount(@Token() token: string) {
+    return await this.authService.deleteAccount(token);
   }
 
   @Post('/upload')
