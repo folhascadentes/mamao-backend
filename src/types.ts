@@ -72,3 +72,13 @@ export class SignUpPayload {
   @IsString()
   others?: string;
 }
+
+export class SignInPayload {
+  @IsNotEmpty()
+  @IsString()
+  email: string;
+
+  @IsNotEmpty()
+  @IsString()
+  password: string;
+}

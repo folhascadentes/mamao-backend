@@ -2,6 +2,7 @@
 import { Injectable } from '@nestjs/common';
 import {
   CognitoIdentityProviderClient,
+  InitiateAuthCommand,
   SignUpCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 import * as crypto from 'crypto';
@@ -49,7 +50,23 @@ export class AuthService {
     return await this.cognito.send(command);
   }
 
-  async signIn(email: string, password: string): Promise<any> {}
+  async signIn(email: string, password: string): Promise<any> {
+    const command = new InitiateAuthCommand({
+      AuthFlow: 'USER_PASSWORD_AUTH',
+      ClientId: process.env.COGNITO_CLIENT_ID,
+      AuthParameters: {
+        USERNAME: email,
+        PASSWORD: password,
+        SECRET_HASH: this.calculateHMAC(
+          process.env.COGNITO_SECRET_KEY,
+          process.env.COGNITO_CLIENT_ID,
+          email,
+        ),
+      },
+    });
+
+    return await this.cognito.send(command);
+  }
 
   private calculateHMAC(secretKey: string, clientId: string, username: string) {
     const message = `${username}${clientId}`;
