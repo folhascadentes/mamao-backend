@@ -11,8 +11,8 @@ const SIGN_DATABASE_TABLE = 'sign-database';
 @Injectable()
 export class SignDatabaseService {
   private bucketName = process.env.AWS_BUCKET_NAME;
-  private s3 = new S3Client({ region: 'sa-east-1' });
-  private dynamo = new DynamoDBClient({ region: 'sa-east-1' });
+  private s3 = new S3Client({ region: process.env.AWS_REGION });
+  private dynamo = new DynamoDBClient({ region: process.env.AWS_REGION });
 
   public async upload(payload: UploadSignPayload): Promise<string> {
     const timestamp = new Date().getTime();

@@ -8,7 +8,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 
-const envVariables = ['AWS_BUCKET_NAME'];
+const envVariables = ['AWS_BUCKET_NAME', 'AWS_REGION'];
 
 async function checkEnvVariables() {
   for (let envVariable of envVariables) {

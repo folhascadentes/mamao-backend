@@ -11,7 +11,9 @@ import { SignUpPayload } from './types';
 
 @Injectable()
 export class AuthService {
-  private cognito = new CognitoIdentityProviderClient({ region: 'sa-east-1' });
+  private cognito = new CognitoIdentityProviderClient({
+    region: process.env.AWS_REGION,
+  });
 
   public async signUp(payload: SignUpPayload) {
     const command = new SignUpCommand({
