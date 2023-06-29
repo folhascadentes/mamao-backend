@@ -1,0 +1,26 @@
+service: mamao
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: development
+  region: sa-east-1
+  memorySize: 256
+  timeout: 30
+
+functions:
+  mamao:
+    handler: dist/main.handler
+    events:
+      - http:
+          path: /
+          method: any
+          cors: true
+
+plugins:
+  - serverless-apigw-binary
+
+custom:
+  apigwBinary:
+    types:
+      - 'image/*'

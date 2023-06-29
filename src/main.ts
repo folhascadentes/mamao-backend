@@ -3,10 +3,12 @@ require('dotenv').config();
 import { NestFactory } from '@nestjs/core';
 import * as bodyParser from 'body-parser';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
+import { createServer, proxy } from 'aws-serverless-express';
+import { Handler } from 'express';
 
 const envVariables = [
   'AWS_BUCKET_NAME',
@@ -40,7 +42,7 @@ async function checkEnvVariables() {
   }
 }
 
-async function bootstrap() {
+async function bootstrap(): Promise<INestApplication> {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors();
@@ -48,12 +50,31 @@ async function bootstrap() {
   app.use(bodyParser.json({ limit: '100mb' }));
   app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
 
-  await app.listen(4000);
+  await app.init();
+
+  return app;
 }
 
 async function main() {
   await checkEnvVariables();
-  await bootstrap();
+  const app = await bootstrap();
+  await app.listen(4000);
 }
 
-main();
+if (process.env.NODE_ENV === 'development') {
+  main();
+}
+
+let cachedServer: any;
+
+const handler: Handler = async (event: any, context: any) => {
+  if (!cachedServer) {
+    const app = await bootstrap();
+    const expressApp = app.getHttpAdapter().getInstance();
+    cachedServer = createServer(expressApp);
+  }
+
+  return proxy(cachedServer, event, context, 'PROMISE').promise;
+};
+
+export { handler };
