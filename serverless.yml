@@ -14,9 +14,12 @@ functions:
     events:
       - http:
           path: /
-          method: any
+          method: ANY
           cors: true
-
+      - http:
+          path: /{proxy+}
+          method: ANY
+          cors: true
 plugins:
   - serverless-apigw-binary
   - serverless-dotenv-plugin
@@ -26,7 +29,5 @@ custom:
     types:
       - 'image/*'
   dotenv:
-    include:
-      - .env
     exclude:
       - AWS_REGION
