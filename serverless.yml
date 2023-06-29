@@ -19,8 +19,14 @@ functions:
 
 plugins:
   - serverless-apigw-binary
+  - serverless-dotenv-plugin
 
 custom:
   apigwBinary:
     types:
       - 'image/*'
+  dotenv:
+    include:
+      - .env
+    exclude:
+      - AWS_REGION
