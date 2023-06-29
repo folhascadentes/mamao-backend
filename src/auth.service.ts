@@ -118,7 +118,13 @@ export class AuthService {
 
   private filterUserAttributes(payload: any): AttributeType[] {
     return Object.entries(payload)
-      .filter(([key, value]) => key !== 'accessToken' && value)
+      .filter(
+        ([key, value]) =>
+          key !== 'accessToken' &&
+          key !== 'email' &&
+          key !== 'password' &&
+          value,
+      )
       .map(([key, value]) => ({
         Name: `custom:${key}`,
         Value: typeof value === 'number' ? value.toString() : value,
