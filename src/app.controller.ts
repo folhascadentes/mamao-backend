@@ -90,7 +90,7 @@ export class AppController {
     @Body()
     body: UploadSignPayload,
     @UserId() userId: string,
-  ): Promise<string> {
+  ): Promise<{ etag: string }> {
     return await this.signDatabaseService.upload({ ...body, userId });
   }
 }

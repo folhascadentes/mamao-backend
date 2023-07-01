@@ -16,7 +16,7 @@ export class SignDatabaseService {
 
   public async upload(
     payload: UploadSignPayload & { userId: string },
-  ): Promise<string> {
+  ): Promise<{ etag: string }> {
     const timestamp = new Date().getTime();
     const outputVideoName = `${timestamp}`;
     let fileNames: string[] = [];
@@ -43,7 +43,7 @@ export class SignDatabaseService {
         landmarks: payload.landmarks,
       });
       await this.deleteTempFiles(fileNames);
-      return uploadedFileData.ETag;
+      return { etag: uploadedFileData.ETag };
     } catch (error) {
       if (fileNames) {
         await this.deleteTempFiles(fileNames);
