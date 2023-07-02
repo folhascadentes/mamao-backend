@@ -34,5 +34,4 @@ custom:
 
 package:
   include:
-    - ffmpeg
-    - ffprobe
+    - dist/ffmpeg

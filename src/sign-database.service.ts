@@ -17,6 +17,8 @@ export class SignDatabaseService {
   public async upload(
     payload: UploadSignPayload & { userId: string },
   ): Promise<{ etag: string }> {
+    console.log('INITIATING UPLOAD');
+
     const timestamp = new Date().getTime();
     const outputVideoName = `${timestamp}`;
     let fileNames: string[] = [];
@@ -96,8 +98,15 @@ export class SignDatabaseService {
     outputVideoName: string,
     timestamp: number,
   ): Promise<string[]> {
+    const ffmpegPath = path.join(__dirname, 'ffmpeg');
+
+    const files = fs.readdirSync(path.resolve(__dirname));
+    console.log('FILES ::', files, ffmpegPath);
+
     // decode Base64 strings to image files
     const filenames = await this.decodeBase64Images(base64Images, timestamp);
+
+    ffmpeg.setFfmpegPath(ffmpegPath);
 
     return new Promise((resolve, reject) => {
       ffmpeg()
@@ -121,7 +130,7 @@ export class SignDatabaseService {
 
     for (let i = 0; i < base64Images.length; i++) {
       const filename = `frame_${timestamp}_${i}.jpg`;
-      console.log(filename);
+      console.log('jpg ::', filename);
       await fs.promises.writeFile(
         `/tmp/${filename}`,
         base64Images[i],
