@@ -35,3 +35,5 @@ custom:
 package:
   include:
     - dist/ffmpeg
+  exclude:
+    - node_modules/aws-sdk/**
