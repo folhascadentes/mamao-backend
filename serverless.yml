@@ -31,3 +31,8 @@ custom:
   dotenv:
     exclude:
       - AWS_REGION
+
+package:
+  include:
+    - ffmpeg
+    - ffprobe
