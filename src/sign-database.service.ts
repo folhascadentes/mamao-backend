@@ -20,7 +20,7 @@ export class SignDatabaseService {
     console.log('INITIATING UPLOAD');
 
     const timestamp = new Date().getTime();
-    const outputVideoName = `/tmp/${timestamp}`;
+    const outputVideoName = `${timestamp}`;
     let fileNames: string[] = [];
 
     try {
@@ -31,7 +31,7 @@ export class SignDatabaseService {
           outputVideoName,
           timestamp,
         )
-      ).concat(videoFilePath);
+      ).concat(`/tmp/${videoFilePath}`);
       const uploadedFileData = await this.uploadToS3(
         payload.userId,
         videoFilePath,
@@ -57,7 +57,7 @@ export class SignDatabaseService {
   private async uploadToS3(userId: string, filePath: string) {
     console.log('UPLOADING TO S3', filePath);
 
-    const fileStream = fs.createReadStream(filePath);
+    const fileStream = fs.createReadStream(`/tmp/${filePath}`);
 
     const command = new PutObjectCommand({
       Bucket: this.bucketName,
@@ -100,13 +100,12 @@ export class SignDatabaseService {
   ): Promise<string[]> {
     const ffmpegPath = path.join(__dirname, 'ffmpeg');
 
-    const files = fs.readdirSync(path.resolve(__dirname));
-    console.log('FILES ::', files, ffmpegPath);
-
     // decode Base64 strings to image files
     const filenames = await this.decodeBase64Images(base64Images, timestamp);
 
-    ffmpeg.setFfmpegPath(ffmpegPath);
+    if (process.env.NODE_ENV !== 'development') {
+      ffmpeg.setFfmpegPath(ffmpegPath);
+    }
 
     return new Promise((resolve, reject) => {
       ffmpeg()
@@ -117,7 +116,7 @@ export class SignDatabaseService {
         .input(`/tmp/frame_${timestamp}_%d.jpg`)
         .inputFPS(25)
         .outputOptions('-c:v', 'libx264', '-crf', '28', '-r', '30')
-        .output(`${outputVideoName}.mp4`)
+        .output(`/tmp/${outputVideoName}.mp4`)
         .run();
     });
   }
