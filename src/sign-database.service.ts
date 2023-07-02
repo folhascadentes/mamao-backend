@@ -20,7 +20,7 @@ export class SignDatabaseService {
     console.log('INITIATING UPLOAD');
 
     const timestamp = new Date().getTime();
-    const outputVideoName = `${timestamp}`;
+    const outputVideoName = `/tmp/${timestamp}`;
     let fileNames: string[] = [];
 
     try {
@@ -114,10 +114,10 @@ export class SignDatabaseService {
           resolve(filenames);
         })
         .on('error', (err) => reject(new Error(`Error ${err}`)))
-        .input(`/tmp/frame_${timestamp}_%d.jpg`) // Replace with your images path
+        .input(`/tmp/frame_${timestamp}_%d.jpg`)
         .inputFPS(25)
         .outputOptions('-c:v', 'libx264', '-crf', '28', '-r', '30')
-        .output(`${outputVideoName}.mp4`) // Replace with your output path
+        .output(`${outputVideoName}.mp4`)
         .run();
     });
   }
