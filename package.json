@@ -36,7 +36,8 @@
     "jsonwebtoken": "^9.0.0",
     "jwks-rsa": "^3.0.1",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "zlib": "^1.0.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

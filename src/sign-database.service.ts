@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as ffmpeg from 'fluent-ffmpeg';
+import * as zlib from 'zlib';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { UploadSignPayload } from './types';
@@ -86,7 +87,9 @@ export class SignDatabaseService {
         token: { S: record.token },
         timestamp: { N: record.timestamp.toString() },
         path: { S: record.path },
-        landmarks: { S: JSON.stringify(record.landmarks) },
+        landmarks: {
+          S: zlib.gzipSync(JSON.stringify(record.landmarks)).toString('base64'),
+        },
       },
     });
 
