@@ -4,7 +4,12 @@ import * as fs from 'fs';
 import * as ffmpeg from 'fluent-ffmpeg';
 import * as zlib from 'zlib';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import {
+  DynamoDBClient,
+  PutItemCommand,
+  QueryCommand,
+  ScanCommand,
+} from '@aws-sdk/client-dynamodb';
 import { UploadSignPayload } from './types';
 
 const SIGN_DATABASE_TABLE = 'sign-database';
@@ -153,5 +158,56 @@ export class SignDatabaseService {
         console.error(`Error deleting file ${filename}: ${err}`);
       }
     }
+  }
+
+  public async countSignByUserId(userId: string): Promise<number> {
+    const command = new QueryCommand({
+      TableName: SIGN_DATABASE_TABLE,
+      IndexName: 'UserIdIndex',
+      KeyConditionExpression: 'userId = :id',
+      ExpressionAttributeValues: {
+        ':id': { S: userId },
+      },
+    });
+    const response = await this.dynamo.send(command);
+    return response.Items.length;
+  }
+
+  public async countSignTokenByUserId(
+    userId: string,
+    token: string,
+  ): Promise<number> {
+    const command = new QueryCommand({
+      TableName: SIGN_DATABASE_TABLE,
+      IndexName: 'UserIdIndex',
+      KeyConditionExpression: 'userId = :userId and begins_with(#t, :t)',
+      ExpressionAttributeValues: {
+        ':userId': { S: userId },
+        ':t': { S: token },
+      },
+      ExpressionAttributeNames: {
+        '#t': 'token',
+      },
+    });
+    const response = await this.dynamo.send(command);
+    return response.Items.length;
+  }
+
+  public async countTotalSigns(): Promise<number> {
+    const command = new ScanCommand({ TableName: SIGN_DATABASE_TABLE });
+    const response = await this.dynamo.send(command);
+    return response.Items.length;
+  }
+
+  public async countTotalSignsToken(token: string): Promise<number> {
+    const command = new ScanCommand({
+      TableName: SIGN_DATABASE_TABLE,
+      FilterExpression: 'token = :token',
+      ExpressionAttributeValues: {
+        ':token': { S: token },
+      },
+    });
+    const response = await this.dynamo.send(command);
+    return response.Items.length;
   }
 }

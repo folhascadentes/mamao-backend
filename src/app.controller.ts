@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Query } from '@nestjs/common';
 import { SignDatabaseService } from './sign-database.service';
 import {
   ConfirmSignUpPayload,
@@ -92,5 +92,28 @@ export class AppController {
     @UserId() userId: string,
   ): Promise<{ etag: string }> {
     return await this.signDatabaseService.upload({ ...body, userId });
+  }
+
+  @Get('/sign/count')
+  public signCountByUser(@Query('userId') userId: string) {
+    return this.signDatabaseService.countSignByUserId(userId);
+  }
+
+  @Get('/sign/count/token')
+  public signCountByUserAndToken(
+    @Query('userId') userId: string,
+    @Query('token') token: string,
+  ) {
+    return this.signDatabaseService.countSignTokenByUserId(userId, token);
+  }
+
+  @Get('/sign/count/total')
+  public signCountTotal() {
+    return this.signDatabaseService.countTotalSigns();
+  }
+
+  @Get('/sign/count/total/token')
+  public signCountTotalByToken(@Query('token') token: string) {
+    return this.signDatabaseService.countTotalSignsToken(token);
   }
 }
