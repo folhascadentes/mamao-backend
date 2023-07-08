@@ -20,8 +20,14 @@ export class AppController {
 
   @Get('/profile')
   @Auth()
-  public async getProfile(@Token() token: string) {
-    return await this.authService.getUserProfile(token);
+  public async getProfile(@UserId() userId: string, @Token() token: string) {
+    const signCount = await this.signDatabaseService.countSignByUserId(userId);
+    const profileInfo = await this.authService.getUserProfile(token);
+
+    return {
+      ...profileInfo,
+      signs: signCount,
+    };
   }
 
   @Post('/sign-up')
