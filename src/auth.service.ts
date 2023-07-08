@@ -7,12 +7,13 @@ import {
   DeleteUserCommand,
   DeleteUserCommandOutput,
   ForgotPasswordCommand,
+  GetUserCommand,
   InitiateAuthCommand,
   SignUpCommand,
   UpdateUserAttributesCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 import * as crypto from 'crypto';
-import { SignUpPayload, UpdateProfilePayload } from './types';
+import { SignUpPayload, UpdateProfilePayload, UserProfile } from './types';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +23,26 @@ export class AuthService {
     this.cognito = new CognitoIdentityProviderClient({
       region: process.env.AWS_REGION,
     });
+  }
+
+  public async getUserProfile(accessToken: string): Promise<UserProfile> {
+    const command = new GetUserCommand({
+      AccessToken: accessToken,
+    });
+
+    const response = await this.cognito.send(command);
+
+    let formattedAttributes = {};
+
+    response.UserAttributes.forEach((attribute) => {
+      const attributeName = attribute.Name.replace('custom:', ''); // remove "custom:" prefix
+      formattedAttributes[attributeName] = attribute.Value;
+    });
+
+    // add the username
+    formattedAttributes['username'] = response.Username;
+
+    return formattedAttributes;
   }
 
   public async signUp(payload: SignUpPayload) {

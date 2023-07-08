@@ -122,3 +122,15 @@ export class UploadSignPayload {
   @IsString({ each: true })
   frames: string[]; // jpeg;base64
 }
+
+export class UserProfile {
+  age?: string;
+  deficiency?: string;
+  email_verified?: string;
+  email?: string;
+  ethnicity?: string;
+  height?: string;
+  sub?: string;
+  username?: string;
+  weight?: string;
+}

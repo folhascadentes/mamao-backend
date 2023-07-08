@@ -172,42 +172,4 @@ export class SignDatabaseService {
     const response = await this.dynamo.send(command);
     return response.Items.length;
   }
-
-  public async countSignTokenByUserId(
-    userId: string,
-    token: string,
-  ): Promise<number> {
-    const command = new QueryCommand({
-      TableName: SIGN_DATABASE_TABLE,
-      IndexName: 'UserIdIndex',
-      KeyConditionExpression: 'userId = :userId and begins_with(#t, :t)',
-      ExpressionAttributeValues: {
-        ':userId': { S: userId },
-        ':t': { S: token },
-      },
-      ExpressionAttributeNames: {
-        '#t': 'token',
-      },
-    });
-    const response = await this.dynamo.send(command);
-    return response.Items.length;
-  }
-
-  public async countTotalSigns(): Promise<number> {
-    const command = new ScanCommand({ TableName: SIGN_DATABASE_TABLE });
-    const response = await this.dynamo.send(command);
-    return response.Items.length;
-  }
-
-  public async countTotalSignsToken(token: string): Promise<number> {
-    const command = new ScanCommand({
-      TableName: SIGN_DATABASE_TABLE,
-      FilterExpression: 'token = :token',
-      ExpressionAttributeValues: {
-        ':token': { S: token },
-      },
-    });
-    const response = await this.dynamo.send(command);
-    return response.Items.length;
-  }
 }

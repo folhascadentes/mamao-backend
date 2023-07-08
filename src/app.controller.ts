@@ -18,6 +18,12 @@ export class AppController {
     private readonly signDatabaseService: SignDatabaseService,
   ) {}
 
+  @Get('/profile')
+  @Auth()
+  public async getProfile(@Token() token: string) {
+    return await this.authService.getUserProfile(token);
+  }
+
   @Post('/sign-up')
   public async signUp(
     @Body()
@@ -97,23 +103,5 @@ export class AppController {
   @Get('/sign/count')
   public signCountByUser(@Query('userId') userId: string) {
     return this.signDatabaseService.countSignByUserId(userId);
-  }
-
-  @Get('/sign/count/token')
-  public signCountByUserAndToken(
-    @Query('userId') userId: string,
-    @Query('token') token: string,
-  ) {
-    return this.signDatabaseService.countSignTokenByUserId(userId, token);
-  }
-
-  @Get('/sign/count/total')
-  public signCountTotal() {
-    return this.signDatabaseService.countTotalSigns();
-  }
-
-  @Get('/sign/count/total/token')
-  public signCountTotalByToken(@Query('token') token: string) {
-    return this.signDatabaseService.countTotalSignsToken(token);
   }
 }
