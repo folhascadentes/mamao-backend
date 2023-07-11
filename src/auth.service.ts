@@ -54,7 +54,11 @@ export class AuthService {
       UserAttributes: this.filterUserAttributes(payload),
     });
 
-    return await this.cognito.send(command);
+    try {
+      return await this.cognito.send(command);
+    } catch (e) {
+      return e;
+    }
   }
 
   public async confirmSignUp(email: string, code: string) {
