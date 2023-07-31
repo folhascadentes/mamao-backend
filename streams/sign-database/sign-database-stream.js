@@ -1,10 +1,17 @@
-const AWS = require('aws-sdk');
-const docClient = new AWS.DynamoDB.DocumentClient();
+const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
+const {
+  DynamoDBDocumentClient,
+  UpdateCommand,
+} = require('@aws-sdk/lib-dynamodb');
+
+const client = new DynamoDBClient({});
+const docClient = DynamoDBDocumentClient.from(client);
 
 async function updateItem(newImage) {
-  const params = {
+  const command = new UpdateCommand({
     TableName: 'total-sign-database',
     Key: {
+      language: newImage.language.S,
       token: newImage.token.S,
     },
     UpdateExpression: 'ADD #total :inc SET lastUpdate = :ts',
@@ -13,13 +20,12 @@ async function updateItem(newImage) {
     },
     ExpressionAttributeValues: {
       ':inc': 1,
-      ':ts': new Date().toISOString(),
+      ':ts': new Date().getTime(),
     },
     ReturnValues: 'UPDATED_NEW',
-  };
+  });
 
-  const updatedItem = await docClient.update(params).promise();
-  console.log(updatedItem);
+  return await docClient.send(command);
 }
 
 exports.handler = async (event) => {
