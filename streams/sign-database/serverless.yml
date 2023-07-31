@@ -1,0 +1,27 @@
+service: sign-database-stream
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: sa-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeStream
+        - dynamodb:GetRecords
+        - dynamodb:GetShardIterator
+        - dynamodb:ListStreams
+      Resource: 'arn:aws:dynamodb:sa-east-1:724679650721:table/sign-database/stream/*'
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+      Resource: 'arn:aws:dynamodb:sa-east-1:724679650721:table/total-sign-database'
+
+functions:
+  dynamoStreamHandler:
+    handler: sign-database-stream.handler
+    events:
+      - stream:
+          type: dynamodb
+          arn: arn:aws:dynamodb:sa-east-1:724679650721:table/sign-database/stream/2023-07-31T19:07:30.777
