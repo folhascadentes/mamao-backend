@@ -56,9 +56,9 @@ for item in data:
 for key, value in counter.items():
     new_table.put_item(
         Item={
-            "language": {"S": key[0]},
-            "token": {"S": key[1]},
-            "lastUpdate": {"N": str(value["lastUpdate"])},
-            "total": {"N": str(value["total"])},
+            "language": key[0],
+            "token": key[1],
+            "lastUpdate": value["lastUpdate"],
+            "total": value["total"],
         }
     )
