@@ -1,0 +1,14 @@
+{
+  "name": "sign-database",
+  "version": "1.0.0",
+  "description": "Will need to change resources ARN before deploy in a new environment",
+  "main": "sign-database-stream.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1426.0"
+  }
+}
