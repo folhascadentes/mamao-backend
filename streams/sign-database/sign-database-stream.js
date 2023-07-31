@@ -5,7 +5,6 @@ async function updateItem(newImage) {
   const params = {
     TableName: 'total-sign-database',
     Key: {
-      language: newImage.language.S,
       token: newImage.token.S,
     },
     UpdateExpression: 'ADD #total :inc SET lastUpdate = :ts',

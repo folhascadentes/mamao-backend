@@ -16,6 +16,7 @@ provider:
       Action:
         - dynamodb:GetItem
         - dynamodb:PutItem
+        - dynamodb:UpdateItem
       Resource: 'arn:aws:dynamodb:sa-east-1:724679650721:table/total-sign-database'
 
 functions:
