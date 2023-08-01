@@ -3,16 +3,17 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as ffmpeg from 'fluent-ffmpeg';
 import * as zlib from 'zlib';
+import { sampleSize } from 'lodash';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import {
   DynamoDBClient,
   PutItemCommand,
   QueryCommand,
-  ScanCommand,
 } from '@aws-sdk/client-dynamodb';
 import { UploadSignPayload } from './types';
 
 const SIGN_DATABASE_TABLE = 'sign-database';
+const TOTAL_SIGN_DATABASE_TABLE = 'total-sign-database';
 
 @Injectable()
 export class SignDatabaseService {
@@ -171,5 +172,52 @@ export class SignDatabaseService {
     });
     const response = await this.dynamo.send(command);
     return response.Items.length;
+  }
+
+  public async getSession(): Promise<
+    {
+      language: string;
+      token: string;
+      total: number;
+    }[]
+  > {
+    const command = new QueryCommand({
+      TableName: TOTAL_SIGN_DATABASE_TABLE,
+      KeyConditionExpression: '#language = :language',
+      IndexName: 'LanguageTotalIndex',
+      ExpressionAttributeNames: {
+        '#language': 'language',
+      },
+      ExpressionAttributeValues: {
+        ':language': { S: 'Libras' },
+      },
+      Limit: 100,
+    });
+
+    const response = await this.dynamo.send(command);
+
+    const items = response.Items.map((item) => {
+      return {
+        language: item.language.S,
+        token: item.token.S,
+        total: Number(item.total.N),
+      };
+    });
+
+    return this.selectSessionSigns(items);
+  }
+
+  private selectSessionSigns(
+    signs: any[],
+  ): { language: string; token: string; total: number }[] {
+    const firstPart = signs.slice(0, 15);
+    const secondPart = signs.slice(15, 30);
+    const thirdPart = signs.slice(30, 100);
+
+    const firstFive = sampleSize(firstPart, 5);
+    const nextThree = sampleSize(secondPart, 3);
+    const lastTwo = sampleSize(thirdPart, 2);
+
+    return [...firstFive, ...nextThree, ...lastTwo];
   }
 }

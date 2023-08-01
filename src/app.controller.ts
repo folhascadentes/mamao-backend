@@ -107,7 +107,13 @@ export class AppController {
   }
 
   @Get('/sign/count')
-  public signCountByUser(@Query('userId') userId: string) {
+  public async signCountByUser(@Query('userId') userId: string) {
     return this.signDatabaseService.countSignByUserId(userId);
+  }
+
+  @Get('/session')
+  // @Auth()
+  public async getSession() {
+    return await this.signDatabaseService.getSession();
   }
 }
