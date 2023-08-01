@@ -162,16 +162,27 @@ export class SignDatabaseService {
   }
 
   public async countSignByUserId(userId: string): Promise<number> {
-    const command = new QueryCommand({
-      TableName: SIGN_DATABASE_TABLE,
-      IndexName: 'UserIdIndex',
-      KeyConditionExpression: 'userId = :id',
-      ExpressionAttributeValues: {
-        ':id': { S: userId },
-      },
-    });
-    const response = await this.dynamo.send(command);
-    return response.Items.length;
+    let lastEvaluatedKey;
+    let totalItems = 0;
+
+    do {
+      const command = new QueryCommand({
+        TableName: SIGN_DATABASE_TABLE,
+        IndexName: 'UserIdIndex',
+        KeyConditionExpression: 'userId = :id',
+        ExpressionAttributeValues: {
+          ':id': { S: userId },
+        },
+        ExclusiveStartKey: lastEvaluatedKey,
+      });
+
+      const response = await this.dynamo.send(command);
+      totalItems += response.Items.length;
+
+      lastEvaluatedKey = response.LastEvaluatedKey;
+    } while (lastEvaluatedKey);
+
+    return totalItems;
   }
 
   public async getSession(): Promise<
