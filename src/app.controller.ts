@@ -112,7 +112,7 @@ export class AppController {
   }
 
   @Get('/session')
-  // @Auth()
+  @Auth()
   public async getSession() {
     return await this.signDatabaseService.getSession();
   }
