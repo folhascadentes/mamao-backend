@@ -210,9 +210,9 @@ export class SignDatabaseService {
   private selectSessionSigns(
     signs: any[],
   ): { language: string; token: string; total: number }[] {
-    const firstPart = signs.slice(0, 15);
-    const secondPart = signs.slice(15, 30);
-    const thirdPart = signs.slice(30, 100);
+    const firstPart = signs.slice(0, 12);
+    const secondPart = signs.slice(12, 25);
+    const thirdPart = signs.slice(25, 100);
 
     const firstFive = sampleSize(firstPart, 5);
     const nextThree = sampleSize(secondPart, 3);
